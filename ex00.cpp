@@ -2,11 +2,6 @@
 #include <climits>
 
 unsigned int adder(unsigned int a, unsigned int b) {
-    if (static_cast<unsigned long long>(a) + b > UINT_MAX) {
-        std::cerr << "Error: Sum exceeds UINT_MAX" << std::endl;
-        return 0;
-    }
-
     unsigned int sum = a;
     unsigned int carry = b;
 
@@ -23,7 +18,7 @@ int main() {
     unsigned int test_cases[][2] = {
         {3, 2},
         {7, 8},
-        {4294967295, 1},
+        {2300000000, 2300000000},
         {0, 0}
     };
 
@@ -35,3 +30,5 @@ int main() {
 
     return 0;
 }
+
+/* 2³² = 4 294 967 296 */
