@@ -1,6 +1,12 @@
 #include <iostream>
+#include <climits>
 
 unsigned int adder(unsigned int a, unsigned int b) {
+    if (static_cast<unsigned long long>(a) + b > UINT_MAX) {
+        std::cerr << "Error: Sum exceeds UINT_MAX" << std::endl;
+        return 0;
+    }
+
     unsigned int sum = a;
     unsigned int carry = b;
 
@@ -14,14 +20,18 @@ unsigned int adder(unsigned int a, unsigned int b) {
 }
 
 int main() {
+    unsigned int test_cases[][2] = {
+        {3, 2},
+        {7, 8},
+        {4294967295, 1},
+        {0, 0}
+    };
 
-    unsigned int a = 3, b = 2;
-    std::cout << "Input: a = " << a << ", b = " << b << "\n";
-    std::cout << "Result: " << adder(a, b) << "\n";
-
-    a = 7, b = 8;
-    std::cout << "Input: a = " << a << ", b = " << b << "\n";
-    std::cout << "Result: " << adder(a, b) << "\n";
+    for (const auto& test : test_cases) {
+        unsigned int a = test[0], b = test[1];
+        std::cout << "Input: a = " << a << ", b = " << b << "\n";
+        std::cout << "Result: " << adder(a, b) << "\n\n";
+    }
 
     return 0;
 }
