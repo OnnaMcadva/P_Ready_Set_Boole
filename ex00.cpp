@@ -2,6 +2,7 @@
 #include <string>
 #include <climits>
 #include <cctype>
+#include <chrono>
 
 unsigned int adder(unsigned int a, unsigned int b) {
     unsigned int sum = a;
@@ -62,8 +63,12 @@ unsigned int adder(unsigned int a, unsigned int b) {
 //     a = std::stoul(input1);
 //     b = std::stoul(input2);
 
+//     auto start = std::chrono::high_resolution_clock::now();
 //     unsigned int sum = adder(a, b);
-//     std::cout << "Sum: " << sum << std::endl;
+//     auto end = std::chrono::high_resolution_clock::now();
+//     auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
+//     std::cout << "✨ Sum: " << sum << " ✨" << std::endl;
+//     std::cout << "🐉 Time: " << duration.count() << " nanoseconds 🐉" << std::endl;
 
 //     return 0;
 // }
