@@ -32,28 +32,34 @@ unsigned int multiplier(unsigned int a, unsigned int b) {
 }
 
 // int main() {
-//     std::pair<unsigned int, unsigned int> testCases[] = {
-//         {27, 13},
-//         {123, 654},
-//         {65536, 65536},
-//         {0, 0},
-//         {0, 1000000},
-//     };
 
-//     for (int i = 0; i < 5; ++i) {
-//         unsigned int a = testCases[i].first;
-//         unsigned int b = testCases[i].second;
+//     unsigned int testA[] = {1000, 9999, 65536, 0, 0};
+//     unsigned int testB[] = {1234, 9889, 65536, 0, 1000000};
 
-//         auto start = std::chrono::high_resolution_clock::now();
-//         unsigned int product = multiplier(a, b);
-//         auto end = std::chrono::high_resolution_clock::now();
+//     const int numTests = 5;
+//     const int iterations = 1000;
 
-//         auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
+//     for (int i = 0; i < numTests; ++i) {
+//         unsigned int a = testA[i];
+//         unsigned int b = testB[i];
+//         unsigned int result = 0;
+
+//         uint64_t totalTime = 0;
+
+//         for (int j = 0; j < iterations; ++j) {
+//             auto start = std::chrono::high_resolution_clock::now();
+//             result = multiplier(a, b);
+//             auto end = std::chrono::high_resolution_clock::now();
+
+//             totalTime += std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+//         }
+
+//         uint64_t averageTime = totalTime / iterations;
 
 //         std::cout << "\nTest " << (i + 1) << ": a = " << a << ", b = " << b << std::endl;
-//         std::cout << "✨ Prodact: " << product << " ✨" << std::endl;
-//         std::cout << "🐉 Time: " << duration.count() << " nanoseconds 🐉" << std::endl;
-//         std::cout << "--------------------------\n" << std::endl;
+//         std::cout << "✨ Product: " << result << " ✨" << std::endl;
+//         std::cout << "🐉 Average Time: " << averageTime << " nanoseconds 🐉" << std::endl;
+//         std::cout << "--------------------------\n";
 //     }
 
 //     return 0;

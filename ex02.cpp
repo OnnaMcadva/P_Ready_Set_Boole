@@ -6,10 +6,12 @@ unsigned int BinToGray(unsigned int n) {
 }
 
 // int main() {
-//     for (unsigned int i = 0; i <= 12; ++i) {
+//     for (unsigned int i = 0; i <= 7; ++i) {
 //         unsigned int g = BinToGray(i);
 //         std::cout << "Gray code(" << i << ") = " << g
-//                   << " (" << std::bitset<4>(g) << ")" << std::endl;
+//                   << " [ " << std::bitset<32>(g) << " ]" << std::endl;
 //     }
 //     return 0;
 // }
+
+/* Gray code for a number n is a number where each subsequent code differs from the previous one by only one bit. */
