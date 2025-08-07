@@ -8,8 +8,8 @@ unsigned int BinToGray(unsigned int n) {
 // int main() {
 //     for (unsigned int i = 0; i <= 7; ++i) {
 //         unsigned int g = BinToGray(i);
-//         std::cout << "Gray code(" << i << ") = " << g
-//                   << " [ " << std::bitset<32>(g) << " ]" << std::endl;
+//         std::cout << "Gray code (" << i << ") [ " << std::bitset<5>(i) << " ] = " << g
+//                   << " [ " << std::bitset<5>(g) << " ]" << std::endl;
 //     }
 //     return 0;
 // }

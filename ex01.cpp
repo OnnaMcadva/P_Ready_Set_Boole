@@ -39,6 +39,8 @@ unsigned int multiplier(unsigned int a, unsigned int b) {
 //     const int numTests = 5;
 //     const int iterations = 1000;
 
+//     std::cout << "💻    💻    💻    💻    💻" << std::endl;
+
 //     for (int i = 0; i < numTests; ++i) {
 //         unsigned int a = testA[i];
 //         unsigned int b = testB[i];
