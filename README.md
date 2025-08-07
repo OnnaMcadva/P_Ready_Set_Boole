@@ -11,4 +11,3 @@
 
 
 
-<img width="838" height="643" alt="what-is-gray-code-2" src="https://github.com/user-attachments/assets/65dca0e1-a5d9-41e0-a5c5-82163b9a3e91" />
