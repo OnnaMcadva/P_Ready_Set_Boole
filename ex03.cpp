@@ -59,6 +59,7 @@ bool eval_formula(const std::string& formula) {
 //         "10|",
 //         "11>",
 //         "10=",
+//         "10|1&",
 //         "1011||=",
 //         "1!",
 //         "10^",
@@ -67,18 +68,19 @@ bool eval_formula(const std::string& formula) {
 //     };
 
 //     std::string schemes[] {
-//         "(⊤ ∧ ⊥)",
-//         "(⊤ ∨ ⊥)",
-//         "(⊤ ⇒ ⊤)",
-//         "(⊤ ⇔ ⊥)",
-//         "(T ↔ (⊥ ∨ (T ∨ T)))",
-//         "(¬ ⊤)",
-//         "(⊤ ⊕ ⊥)",
-//         "(¬ (⊤ ⇒ ⊥))",
+//         "{ ⊤ ∧ ⊥ }",
+//         "{ ⊤ ∨ ⊥ }",
+//         "{ ⊤ ⇒ ⊤ }",
+//         "{ ⊤ ⇔ ⊥ }",
+//         "{ (T ∨ ⊥) ∧ T) }",
+//         "{ T ↔ (⊥ ∨ (T ∨ T)) }",
+//         "{ ¬ ⊤ }",
+//         "{ ⊤ ⊕ ⊥ }",
+//         "{ ¬ (⊤ ⇒ ⊥) }",
 //         "~",
 //     };
 
-//     for (int i = 0; i < 9; ++i) {
+//     for (int i = 0; i < 10; ++i) {
 //         std::cout << "Test " << (i + 1) << ": " << formulas[i] << std::endl;
 //         std::cout << "Scheme: " << schemes[i] << std::endl;
 //         bool result = eval_formula(formulas[i]);
