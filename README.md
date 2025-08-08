@@ -6,7 +6,7 @@
 |--------------|--------------------------|-----|
 |[`adder`](https://github.com/OnnaMcadva/P_Ready_Set_Boole/blob/main/ex00.cpp)| `a + b` via `&^<<`       | O(1)|
 |[`multiplier`](https://github.com/OnnaMcadva/P_Ready_Set_Boole/blob/main/ex01.cpp)| `a * b` via shifts       | O(1)|
-| `gray_code`  | Binary → Gray code       | N/A |
+|[`gray_code`](https://github.com/OnnaMcadva/P_Ready_Set_Boole/blob/main/ex02.cpp)| Binary → Gray code       | N/A |
 |              |                          |     |
 |              |                          |     |
 |              |                          |     |
