@@ -17,40 +17,40 @@ bool case_operator(char op, bool a, bool b = false) {
 }
 
 bool eval_formula(const std::string& formula) {
-    std::stack<bool> stack;
+    std::stack<bool> bool_stack;
 
     for (char c : formula) {
         if (c == '0') {
-            stack.push(false);
+            bool_stack.push(false);
         } else if (c == '1') {
-            stack.push(true);
+            bool_stack.push(true);
         } else if (c == '!') {
-            if (stack.empty()) {
+            if (bool_stack.empty()) {
                 std::cerr << "🤖 Not enough operands for '!' 🐬" << std::endl;
                 exit(1);
             }
-            bool a = stack.top(); stack.pop();
-            stack.push(case_operator('!', a));
+            bool a = bool_stack.top(); bool_stack.pop();
+            bool_stack.push(case_operator('!', a));
         } else if (c == '&' || c == '|' || c == '^' || c == '>' || c == '=') {
-            if (stack.size() < 2) {
+            if (bool_stack.size() < 2) {
                 std::cerr << "🤖 Not enough operands for '" << c << "' 🐬" << std::endl;
                 exit(1);
             }
-            bool b = stack.top(); stack.pop();
-            bool a = stack.top(); stack.pop();
-            stack.push(case_operator(c, a, b));
+            bool b = bool_stack.top(); bool_stack.pop();
+            bool a = bool_stack.top(); bool_stack.pop();
+            bool_stack.push(case_operator(c, a, b));
         } else {
             std::cerr << "🤖 Invalid character: '" << c << "' 🌳" << std::endl;
             exit(1);
         }
     }
 
-    if (stack.size() != 1) {
+    if (bool_stack.size() != 1) {
         std::cerr << "🤖 Invalid formula: Look into the Stack 👿" << std::endl;
         exit(1);
     }
 
-    return stack.top();
+    return bool_stack.top();
 }
 
 // int main() {
