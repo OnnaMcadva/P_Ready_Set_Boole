@@ -1,139 +1,109 @@
-
 #include <iostream>
-#include <string>
 #include <stack>
+#include <string>
+#include <stdexcept>
 
-struct Node {
-    char value;
-    Node* left;
-    Node* right;
-
-    Node(char v) : value(v), left(nullptr), right(nullptr) {}
-};
-
-Node* build_ast(const std::string& formula) {
-    std::stack<Node*> st;
-
-    for (char c : formula) {
-        if (c >= 'A' && c <= 'Z') {
-            st.push(new Node(c));
-        } else if (c == '!') {
-            Node* a = st.top(); st.pop();
-            Node* node = new Node('!');
-            node->left = a;
-            st.push(node);
-        } else {
-            Node* b = st.top(); st.pop();
-            Node* a = st.top(); st.pop();
-            Node* node = new Node(c);
-            node->left = a;
-            node->right = b;
-            st.push(node);
-        }
-    }
-
-    return st.top();
+bool isVariable(char c) {
+    return c >= 'A' && c <= 'Z';
 }
 
-Node* clone(Node* node) {
-    if (!node) return nullptr;
-    Node* copy = new Node(node->value);
-    copy->left = clone(node->left);
-    copy->right = clone(node->right);
-    return copy;
+bool isOperator(char c) {
+    return c == '&' || c == '|' || c == '!' || c == '>' || c == '=';
 }
 
-Node* to_nnf(Node* node, bool negated = false) {
-    if (!node) return nullptr;
+std::string grindItUp(char op, const std::string& left, const std::string& right) {
+    if (op == '>') {
+        return left + "!" + right + "|";
+    } else if (op == '=') {
+        std::string part1 = left + right + "&";
+        std::string part2 = left + "!" + right + "!" + "&";
+        return part1 + part2 + "|";
+    }
+    throw std::runtime_error("Unknown operator 🐬");
+}
 
-    if (node->value >= 'A' && node->value <= 'Z') {
-        if (negated) {
-            Node* neg_node = new Node('!');
-            neg_node->left = clone(node);
-            return neg_node;
+std::string negate(const std::string& expr) {
+    if (expr.size() == 1 && isVariable(expr[0])) {
+        return expr + "!";
+    }
+
+    char op = expr.back();
+    if (op == '!') {
+        return expr.substr(0, expr.size() - 1);
+    } else if (op == '&' || op == '|') {
+        std::stack<std::string> str;
+        for (size_t i = 0; i < expr.size() - 1; ++i) {
+            char c = expr[i];
+            if (isVariable(c)) {
+                str.push(std::string(1, c));
+            } else if (c == '!') {
+                std::string top = str.top(); str.pop();
+                str.push(negate(top));
+            } else if (c == '&' || c == '|') {
+                std::string right = str.top(); str.pop();
+                std::string left = str.top(); str.pop();
+                str.push(left + right + c);
+            } else {
+                throw std::runtime_error("Invalid character 🐬");
+            }
         }
-        return clone(node);
-    }
-
-    if (node->value == '!') {
-        return to_nnf(node->left, !negated);
-    }
-
-    if (!negated) {
-        if (node->value == '>') {
-            // A > B → !A | B
-            Node* a = to_nnf(node->left, true);
-            Node* b = to_nnf(node->right, false);
-            Node* or_node = new Node('|');
-            or_node->left = a;
-            or_node->right = b;
-            return or_node;
-        } else if (node->value == '=') {
-            // A = B → (A & B) | (!A & !B)
-            Node* a = to_nnf(node->left, false);
-            Node* b = to_nnf(node->right, false);
-            Node* not_a = to_nnf(node->left, true);
-            Node* not_b = to_nnf(node->right, true);
-
-            Node* and1 = new Node('&'); and1->left = a; and1->right = b;
-            Node* and2 = new Node('&'); and2->left = not_a; and2->right = not_b;
-
-            Node* or_node = new Node('|'); or_node->left = and1; or_node->right = and2;
-            return or_node;
+        if (str.size() != 2) {
+            throw std::runtime_error("Invalid expression 🐬");
         }
-    }
+        std::string right = str.top(); str.pop();
+        std::string left = str.top(); str.pop();
 
-    char op = node->value;
-    Node* a = node->left;
-    Node* b = node->right;
-
-    if (negated) {
         char new_op = (op == '&') ? '|' : '&';
-        Node* left = to_nnf(a, true);
-        Node* right = to_nnf(b, true);
-        Node* res = new Node(new_op);
-        res->left = left;
-        res->right = right;
-        return res;
+        return negate(left) + negate(right) + new_op;
     } else {
-        Node* left = to_nnf(a, false);
-        Node* right = to_nnf(b, false);
-        Node* res = new Node(op);
-        res->left = left;
-        res->right = right;
-        return res;
+        throw std::runtime_error("Invalid operator 🐬");
     }
 }
 
-void to_rpn(Node* node, std::string& result) {
-    if (!node) return;
-    to_rpn(node->left, result);
-    to_rpn(node->right, result);
-    result += node->value;
+std::string toNNF(const std::string& formula) {
+    std::stack<std::string> string_stack;
+    for (char c : formula) {
+        if (isVariable(c)) {
+            string_stack.push(std::string(1, c));
+        } else if (c == '!') {
+            if (string_stack.empty()) throw std::runtime_error("Stack underflow on '!'");
+            std::string top = string_stack.top(); string_stack.pop();
+            string_stack.push(negate(top));
+        } else if (c == '&' || c == '|') {
+            if (string_stack.size() < 2) throw std::runtime_error("Stack underflow on binary op");
+            std::string right = string_stack.top(); string_stack.pop();
+            std::string left = string_stack.top(); string_stack.pop();
+            string_stack.push(left + right + c);
+        } else if (c == '>') {
+            if (string_stack.size() < 2) throw std::runtime_error("Stack underflow on '>'");
+            std::string right = string_stack.top(); string_stack.pop();
+            std::string left = string_stack.top(); string_stack.pop();
+            string_stack.push(grindItUp('>', left, right));
+        } else if (c == '=') {
+            if (string_stack.size() < 2) throw std::runtime_error("Stack underflow on '='");
+            std::string right = string_stack.top(); string_stack.pop();
+            std::string left = string_stack.top(); string_stack.pop();
+            string_stack.push(grindItUp('=', left, right));
+        } else {
+            throw std::runtime_error(std::string("Unknown character: ") + c);
+        }
+    }
+    if (string_stack.size() != 1) throw std::runtime_error("🤖 Invalid formula: Look into the Stack 👿");
+    return string_stack.top();
 }
 
-void delete_tree(Node* node) {
-    if (!node) return;
-    delete_tree(node->left);
-    delete_tree(node->right);
-    delete node;
+int main() {
+    try {
+        std::cout << toNNF("AB&!") << "\n";    // A!B!|
+        std::cout << toNNF("AB|!") << "\n";    // A!B!&
+        std::cout << toNNF("AB>") << "\n";     // A!B|
+        std::cout << toNNF("AB=") << "\n";     // AB&A!B!&|
+        std::cout << toNNF("A!") << "\n";     // A!
+        std::cout << toNNF("AB|C&!") << "\n";  // A!B!&C!|
+        std::cout << toNNF("AB&C|!") << "\n";  // A!B!|C!&
+    } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << "\n";
+    }
+    return 0;
 }
 
-std::string negation_normal_form(const std::string& formula) {
-    Node* ast = build_ast(formula);
-    Node* nnf_ast = to_nnf(ast);
-    std::string result;
-    to_rpn(nnf_ast, result);
-    delete_tree(ast);
-    delete_tree(nnf_ast);
-    return result;
-}
-
-// int main() {
-//     std::cout << negation_normal_form("AB&!") << "\n";     // A!B!|
-//     std::cout << negation_normal_form("AB|!") << "\n";     // A!B!&
-//     std::cout << negation_normal_form("AB>") << "\n";      // A!B|
-//     std::cout << negation_normal_form("AB=") << "\n";      // AB&A!B!&|
-//     std::cout << negation_normal_form("AB|C&!") << "\n";   // A!B!&C!|
-//     return 0;
-// }
