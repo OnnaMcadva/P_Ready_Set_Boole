@@ -92,72 +92,72 @@ std::string toNNF(const std::string& formula) {
     return string_stack.top();
 }
 
-struct Node {
-    char op;
-    std::string val;
-    Node* left = nullptr;
-    Node* right = nullptr;
-};
+// struct Node {
+//     char op;
+//     std::string val;
+//     Node* left = nullptr;
+//     Node* right = nullptr;
+// };
 
-static Node* parseRPN(const std::string& rpn) {
-    std::stack<Node*> st;
-    for (char c : rpn) {
-        if (isVariable(c)) {
-            st.push(new Node{0, std::string(1, c)});
-        } else if (c == '!') {
-            Node* a = st.top(); st.pop();
-            if (a->op == 0 && a->val.back() != '!') {
-                a->val.push_back('!');
-                st.push(a);
-            } else {
-                st.push(new Node{'!', "", a, nullptr});
-            }
-        } else if (c == '&' || c == '|') {
-            Node* b = st.top(); st.pop();
-            Node* a = st.top(); st.pop();
-            st.push(new Node{c, "", a, b});
-        } else {
-            throw std::runtime_error("Invalid char in parseRPN");
-        }
-    }
-    if (st.size() != 1) throw std::runtime_error("Parse error");
-    return st.top();
-}
+// static Node* parseRPN(const std::string& rpn) {
+//     std::stack<Node*> st;
+//     for (char c : rpn) {
+//         if (isVariable(c)) {
+//             st.push(new Node{0, std::string(1, c)});
+//         } else if (c == '!') {
+//             Node* a = st.top(); st.pop();
+//             if (a->op == 0 && a->val.back() != '!') {
+//                 a->val.push_back('!');
+//                 st.push(a);
+//             } else {
+//                 st.push(new Node{'!', "", a, nullptr});
+//             }
+//         } else if (c == '&' || c == '|') {
+//             Node* b = st.top(); st.pop();
+//             Node* a = st.top(); st.pop();
+//             st.push(new Node{c, "", a, b});
+//         } else {
+//             throw std::runtime_error("Invalid char in parseRPN");
+//         }
+//     }
+//     if (st.size() != 1) throw std::runtime_error("Parse error");
+//     return st.top();
+// }
 
-static Node* distribute(Node* n) {
-    if (!n) return nullptr;
-    if (n->op == '&') {
-        n->left = distribute(n->left);
-        n->right = distribute(n->right);
-        return n;
-    }
-    if (n->op == '|') {
-        n->left = distribute(n->left);
-        n->right = distribute(n->right);
-        if (n->left->op == '&') {
-            Node* a = distribute(new Node{'|', "", n->left->left, n->right});
-            Node* b = distribute(new Node{'|', "", n->left->right, n->right});
-            return new Node{'&', "", a, b};
-        }
-        if (n->right->op == '&') {
-            Node* a = distribute(new Node{'|', "", n->left, n->right->left});
-            Node* b = distribute(new Node{'|', "", n->left, n->right->right});
-            return new Node{'&', "", a, b};
-        }
-    }
-    return n;
-}
+// static Node* distribute(Node* n) {
+//     if (!n) return nullptr;
+//     if (n->op == '&') {
+//         n->left = distribute(n->left);
+//         n->right = distribute(n->right);
+//         return n;
+//     }
+//     if (n->op == '|') {
+//         n->left = distribute(n->left);
+//         n->right = distribute(n->right);
+//         if (n->left->op == '&') {
+//             Node* a = distribute(new Node{'|', "", n->left->left, n->right});
+//             Node* b = distribute(new Node{'|', "", n->left->right, n->right});
+//             return new Node{'&', "", a, b};
+//         }
+//         if (n->right->op == '&') {
+//             Node* a = distribute(new Node{'|', "", n->left, n->right->left});
+//             Node* b = distribute(new Node{'|', "", n->left, n->right->right});
+//             return new Node{'&', "", a, b};
+//         }
+//     }
+//     return n;
+// }
 
-static std::string toRPN(Node* n) {
-    if (!n) return "";
-    if (n->op == 0) return n->val;
-    if (n->op == '!') return toRPN(n->left) + "!";
-    return toRPN(n->left) + toRPN(n->right) + std::string(1, n->op);
-}
+// static std::string toRPN(Node* n) {
+//     if (!n) return "";
+//     if (n->op == 0) return n->val;
+//     if (n->op == '!') return toRPN(n->left) + "!";
+//     return toRPN(n->left) + toRPN(n->right) + std::string(1, n->op);
+// }
 
-std::string toCNF(const std::string& formula) {
-    std::string nnf = toNNF(formula);
-    Node* tree = parseRPN(nnf);
-    tree = distribute(tree);
-    return toRPN(tree);
-}
+// std::string toCNF(const std::string& formula) {
+//     std::string nnf = toNNF(formula);
+//     Node* tree = parseRPN(nnf);
+//     tree = distribute(tree);
+//     return toRPN(tree);
+// }
