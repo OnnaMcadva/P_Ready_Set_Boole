@@ -16,7 +16,7 @@ int main() {
         std::cout << toCNF("AB&!") << "\n";    // A!B!|
         std::cout << toCNF("AB|!") << "\n";    // A!B!&
         std::cout << toCNF("AB|C&") << "\n";     // A!B|
-        std::cout << toCNF("AB|C|D|") << "\n";     // AB|C|D|
+        std::cout << toCNF("ABCD|||") << "\n";     // AB|C|D|
         std::cout << toCNF("AB&C&D&") << "\n";     // AB&C&D&
         std::cout << toCNF("AB&!C!|") << "\n";  // A!B!|C!|
         std::cout << toCNF("AB|!C!&") << "\n";  // A!B!&C!&
