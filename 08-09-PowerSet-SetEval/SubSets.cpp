@@ -19,6 +19,7 @@ std::vector<int> setIntersection(const std::vector<int>& a, const std::vector<in
     return result;
 }
 
+/* XOR */
 std::vector<int> setSymmetricDifference(const std::vector<int>& a, const std::vector<int>& b) {
     std::vector<int> result;
     std::set<int> sa(a.begin(), a.end()), sb(b.begin(), b.end());
@@ -26,6 +27,7 @@ std::vector<int> setSymmetricDifference(const std::vector<int>& a, const std::ve
     return result;
 }
 
+/* A∖B */
 std::vector<int> setComplement(const std::vector<int>& a, const std::vector<int>& universe) {
     std::vector<int> result;
     std::set<int> ua(universe.begin(), universe.end());
