@@ -92,72 +92,242 @@ std::string toNNF(const std::string& formula) {
     return string_stack.top();
 }
 
-// struct Node {
-//     char op;
-//     std::string val;
-//     Node* left = nullptr;
-//     Node* right = nullptr;
-// };
+// #include "../main.hpp"
+// #include "../utils/params.hpp"
 
-// static Node* parseRPN(const std::string& rpn) {
-//     std::stack<Node*> st;
-//     for (char c : rpn) {
-//         if (isVariable(c)) {
-//             st.push(new Node{0, std::string(1, c)});
-//         } else if (c == '!') {
-//             Node* a = st.top(); st.pop();
-//             if (a->op == 0 && a->val.back() != '!') {
-//                 a->val.push_back('!');
-//                 st.push(a);
-//             } else {
-//                 st.push(new Node{'!', "", a, nullptr});
-//             }
-//         } else if (c == '&' || c == '|') {
-//             Node* b = st.top(); st.pop();
-//             Node* a = st.top(); st.pop();
-//             st.push(new Node{c, "", a, b});
-//         } else {
-//             throw std::runtime_error("Invalid char in parseRPN");
-//         }
-//     }
-//     if (st.size() != 1) throw std::runtime_error("Parse error");
-//     return st.top();
+// using std::string;
+
+// // Проверка оператора
+// static bool is_operator(char c) {
+//     return c == '&' || c == '|';
 // }
 
-// static Node* distribute(Node* n) {
-//     if (!n) return nullptr;
-//     if (n->op == '&') {
-//         n->left = distribute(n->left);
-//         n->right = distribute(n->right);
-//         return n;
-//     }
-//     if (n->op == '|') {
-//         n->left = distribute(n->left);
-//         n->right = distribute(n->right);
-//         if (n->left->op == '&') {
-//             Node* a = distribute(new Node{'|', "", n->left->left, n->right});
-//             Node* b = distribute(new Node{'|', "", n->left->right, n->right});
-//             return new Node{'&', "", a, b};
-//         }
-//         if (n->right->op == '&') {
-//             Node* a = distribute(new Node{'|', "", n->left, n->right->left});
-//             Node* b = distribute(new Node{'|', "", n->left, n->right->right});
-//             return new Node{'&', "", a, b};
-//         }
-//     }
-//     return n;
+// // Перестановка для вида ab&c& => abc&&
+// static string handle_and_and(const ParamSet& ps) {
+//     const string& a = ps.left->left->value;
+//     const string& b = ps.left->right->value;
+//     const string& c = ps.right->value;
+//     return c + "&&";
 // }
 
-// static std::string toRPN(Node* n) {
-//     if (!n) return "";
-//     if (n->op == 0) return n->val;
-//     if (n->op == '!') return toRPN(n->left) + "!";
-//     return toRPN(n->left) + toRPN(n->right) + std::string(1, n->op);
+// // Перестановка для вида abc&| => ab|ac|b&
+// static string handle_or_and_right(const ParamSet& ps) {
+//     const string& a = ps.left->value;
+//     const string& b = ps.right->left->value;
+//     const string& c = ps.right->right->value;
+//     return "|" + a + c + "|" + b + "&";
 // }
 
-// std::string toCNF(const std::string& formula) {
-//     std::string nnf = toNNF(formula);
-//     Node* tree = parseRPN(nnf);
-//     tree = distribute(tree);
-//     return toRPN(tree);
+// // Перестановка для вида bc&a| => ab|ac|b&
+// static string handle_or_and_left(const ParamSet& ps) {
+//     const string& a = ps.left->value;
+//     const string& b = ps.right->left->value;
+//     const string& c = ps.right->right->value;
+//     return a + b + "|" + a + c + "|" + b + "&";
+// }
+
+// // Основная функция для сдвига и перестановки
+// static string move_and_back(const string& s) noexcept {
+//     string r;
+//     for (size_t i = 0; i < s.length(); ++i) {
+//         r.push_back(s[i]);
+//         if (!is_operator(s[i])) continue;
+
+//         auto ps = get_params(r, r.length() - 1);
+//         auto& le = *(ps.left);
+//         auto& ri = *(ps.right);
+
+//         string new_piece;
+
+//         if (ps.value.back() == '&' && le.value.back() == '&') {
+//             // ab&c& => abc&&
+//             r = r.substr(0, r.length() - (ri.value.length() + 2));
+//             new_piece = handle_and_and(ps);
+//         } 
+//         else if (ps.value.back() == '|' && ri.value.back() == '&') {
+//             // abc&| => ab|ac|b&
+//             r = r.substr(0, r.length() - (ri.value.length() + 2));
+//             new_piece = handle_or_and_right(ps);
+//         } 
+//         else if (ps.value.back() == '|' && le.value.back() == '&') {
+//             // bc&a| => ab|ac|b&
+//             r = r.substr(0, r.length() - ps.value.length());
+//             new_piece = handle_or_and_left(ps);
+//         }
+
+//         r += new_piece;
+//     }
+//     return r;
+// }
+
+// // Проверка корректности CNF
+// static bool is_valid(const string& r) noexcept {
+//     bool and_zone = true;
+//     for (auto it = r.rbegin(); it != r.rend(); ++it) {
+//         if (*it == '&' && !and_zone) return false;
+//         if (*it == '&') continue;
+//         and_zone = false;
+//     }
+//     return true;
+// }
+
+// // Конечная функция для CNF
+// string conjunctive_normal_form(const string& formula) {
+//     string r = negation_normal_form(formula);
+//     while (!is_valid(r)) {
+//         r = move_and_back(r);
+//     }
+//     return r;
+// }
+
+
+// #include "../main.hpp"
+// #include "../utils/params.hpp"
+
+// using std::string;
+
+// // Проверка оператора
+// static bool is_operator(char c) {
+//     return c == '&' || c == '|';
+// }
+
+// // Перестановка для ab&c& => abc&&
+// static string handle_and_and(const ParamSet& ps) {
+//     const string& a = ps.left->left->value;
+//     const string& b = ps.left->right->value;
+//     const string& c = ps.right->value;
+//     return a + b + c + "&&";
+// }
+
+// // Перестановка для abc&| => ab|ac|b&
+// static string handle_or_and_right(const ParamSet& ps) {
+//     const string& a = ps.left->value;
+//     const string& b = ps.right->left->value;
+//     const string& c = ps.right->right->value;
+//     return a + b + "|" + a + c + "|" + b + "&";
+// }
+
+// // Перестановка для bc&a| => ab|ac|b&
+// static string handle_or_and_left(const ParamSet& ps) {
+//     const string& a = ps.left->value;
+//     const string& b = ps.right->left->value;
+//     const string& c = ps.right->right->value;
+//     return a + b + "|" + a + c + "|" + b + "&";
+// }
+
+// // Функциональный вариант move_and_back
+// static string move_and_back(const string& s) noexcept {
+//     string result;
+//     size_t i = 0;
+
+//     while (i < s.length()) {
+//         result.push_back(s[i]);
+//         if (!is_operator(s[i])) {
+//             ++i;
+//             continue;
+//         }
+
+//         ParamSet ps = get_params(result, result.length() - 1);
+//         string new_piece;
+
+//         if (ps.value.back() == '&' && ps.left->value.back() == '&') {
+//             new_piece = handle_and_and(ps);
+//             result = result.substr(0, result.length() - (ps.right->value.length() + 2)) + new_piece;
+//         }
+//         else if (ps.value.back() == '|' && ps.right->value.back() == '&') {
+//             new_piece = handle_or_and_right(ps);
+//             result = result.substr(0, result.length() - (ps.right->value.length() + 2)) + new_piece;
+//         }
+//         else if (ps.value.back() == '|' && ps.left->value.back() == '&') {
+//             new_piece = handle_or_and_left(ps);
+//             result = result.substr(0, result.length() - ps.value.length()) + new_piece;
+//         }
+
+//         ++i;
+//     }
+
+//     return result;
+// }
+
+// // Проверка корректности CNF
+// static bool is_valid(const string& r) noexcept {
+//     bool and_zone = true;
+//     for (auto it = r.rbegin(); it != r.rend(); ++it) {
+//         if (*it == '&' && !and_zone) return false;
+//         if (*it != '&') and_zone = false;
+//     }
+//     return true;
+// }
+
+// // Конечная функция CNF
+// string conjunctive_normal_form(const string& formula) {
+//     string r = negation_normal_form(formula);
+//     while (!is_valid(r)) {
+//         r = move_and_back(r);
+//     }
+//     return r;
+// }
+
+
+// #include "../main.hpp"
+// #include "../utils/params.hpp"
+
+// using std::string;
+
+// // Проверка оператора
+// static bool is_operator(char c) {
+//     return c == '&' || c == '|';
+// }
+
+// // Рекурсивная функция для перестановок
+// static string process(const string& expr) {
+//     if (expr.empty()) return "";
+
+//     ParamSet ps = get_params(expr, expr.length() - 1);
+
+//     // ab&c& => abc&&
+//     if (ps.value.back() == '&' && ps.left->value.back() == '&') {
+//         const string& a = ps.left->left->value;
+//         const string& b = ps.left->right->value;
+//         const string& c = ps.right->value;
+//         return a + b + c + "&&";
+//     }
+//     // abc&| => ab|ac|b&
+//     else if (ps.value.back() == '|' && ps.right->value.back() == '&') {
+//         const string& a = ps.left->value;
+//         const string& b = ps.right->left->value;
+//         const string& c = ps.right->right->value;
+//         return a + b + "|" + a + c + "|" + b + "&";
+//     }
+//     // bc&a| => ab|ac|b&
+//     else if (ps.value.back() == '|' && ps.left->value.back() == '&') {
+//         const string& a = ps.left->value;
+//         const string& b = ps.right->left->value;
+//         const string& c = ps.right->right->value;
+//         return a + b + "|" + a + c + "|" + b + "&";
+//     }
+
+//     // Если ничего не подходит, обрабатываем рекурсивно без изменения
+//     string prefix = expr.substr(0, expr.length() - 1);
+//     string last_char(1, expr.back());
+//     return process(prefix) + last_char;
+// }
+
+// // Проверка корректности CNF
+// static bool is_valid(const string& r) noexcept {
+//     bool and_zone = true;
+//     for (auto it = r.rbegin(); it != r.rend(); ++it) {
+//         if (*it == '&' && !and_zone) return false;
+//         if (*it != '&') and_zone = false;
+//     }
+//     return true;
+// }
+
+// // Главная функция CNF
+// string conjunctive_normal_form(const string& formula) {
+//     string r = negation_normal_form(formula);
+//     while (!is_valid(r)) {
+//         r = process(r);
+//     }
+//     return r;
 // }
