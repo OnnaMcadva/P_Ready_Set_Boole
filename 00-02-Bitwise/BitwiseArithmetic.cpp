@@ -9,7 +9,7 @@ unsigned int adder(unsigned int a, unsigned int b) {
     unsigned int sum = a;
     unsigned int carry = b;
 
-    while (carry != 0) {
+    for (int i = 0; i < 32; ++i) {
         unsigned int temp = sum;
         sum = temp ^ carry;
         carry = (temp & carry) << 1;
@@ -21,7 +21,7 @@ unsigned int adder(unsigned int a, unsigned int b) {
 unsigned int multiplier(unsigned int a, unsigned int b) {
     unsigned int product = 0;
     
-    while (b != 0) {
+    for (int i = 0; i < 32; ++i) {
         if (b & 1) {
             product = adder(product, a);
         }
